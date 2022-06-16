@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="Preloader">
+        <h1>Loading</h1>
+        <canvas id="myCanvas"></canvas>
+    </div>
+
+    <script>
+        var c = document.getElementById("myCanvas");
+        var ctx = c.getContext("2d");
+
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
+
+        window.addEventListener("resize", function () {
+            c.width = window.innerWidth;
+            c.height = window.innerHeight;
+        });
+
+        var mouse = { x: c.width / 2, y: c.height / 2 }
+
+        window.addEventListener("mousemove", function (event) {
+            mouse.x = event.clientX;
+            mouse.y = event.clientY;
+
+        });
+
+        var preloaderEffect = true
+
+        var hue = 0
+
+        class ball {
+            constructor(x, y) {
+                this.position = {
+                    x: x,
+                    y, y
+                }
+                this.r = 15 * Math.random() + 1
+                this.color = 'hsl(' + hue + ', 100%, 50%'
+                this.velocity = {
+                    x: Math.round(Math.random() * 1) * 2 - 1,
+                    y: Math.round(Math.random() * 1) * 2 - 1
+                }
+                this.speed = {
+                    x: 5 * Math.random(),
+                    y: 5 * Math.random()
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fillStyle = this.color;
+                ctx.arc(this.position.x, this.position.y, this.r, 0, 2 * Math.PI, false);
+                ctx.fill();
+                ctx.closePath();
+                ctx.shadowBlur = 0;
+            }
+            update() {
+                this.draw()
+
+                this.position.x += this.velocity.x * this.speed.x;
+                this.position.y += this.velocity.y * this.speed.y;
+
+                if (this.r >= 0.2) {
+                    this.r -= 0.1
+                }
+            }
+        }
+
+        var Balls = []
+
+        function init() {
+            for (var j = 0; j < Balls.length; j++) {
+                Balls[j].update()
+                for (var k = j; k < Balls.length; k++) {
+                    var dx = Balls[j].position.x - Balls[j].position.x
+                    var dy = Balls[k].position.y - Balls[k].position.y
+                    var distance = Math.sqrt(dx * dx + dy * dy)
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = Balls[j].color;
+                        ctx.moveTo(Balls[j].position.x, Balls[j].position.y);
+                        ctx.lineTo(Balls[k].position.x, Balls[k].position.y);
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
+                }
+
+                if (Balls[j].r <= 0.2) {
+                    Balls.splice(j, 1)
+                    j--
+                }
+
+            }
+        }
+
+        function loop() {
+            setInterval(() => {
+                for (var i = 0; i < 10; i++) {
+                    Balls.push(new ball(mouse.x, mouse.y))
+                }
+            }, 500)
+        }
+
+        function animate() {
+            if (preloaderEffect !== true) return
+            requestAnimationFrame(animate);
+            /*  ctx.clearRect(0, 0, c.width, c.height) */
+
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.fillRect(0, 0, c.width, c.height);
+
+            hue++
+            init();
+
+        };
+
+        animate();
+        loop();
+    </script>
+</body>
+
+</html>
